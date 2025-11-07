@@ -1,19 +1,20 @@
-'use client'
-import React, { useEffect, useState } from 'react'
-import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk'
-import { Proof } from '@reclaimprotocol/js-sdk'
+"use client";
+import React, { useEffect, useState } from "react";
+import { ReclaimProofRequest } from "@reclaimprotocol/js-sdk";
+import { Proof } from "@reclaimprotocol/js-sdk";
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(false)
-  const [proofData, setProofData] = useState<Proof[] | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [reclaimProofRequest, setReclaimProofRequest] = useState<ReclaimProofRequest | null>(null)
+  const [isLoading, setIsLoading] = useState(false);
+  const [proofData, setProofData] = useState<Proof[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [reclaimProofRequest, setReclaimProofRequest] =
+    useState<ReclaimProofRequest | null>(null);
 
   useEffect(() => {
     // Initialize the ReclaimProofRequest when the component mounts
-    initializeReclaimProofRequest()
+    initializeReclaimProofRequest();
     // verifyProofData()
-  }, [])
+  }, []);
 
   async function initializeReclaimProofRequest() {
     try {
@@ -29,7 +30,6 @@ export default function Home() {
       // - timeStamp: Timestamp of the proof request
       // - options: Additional configuration options
 
-
       const proofRequest = await ReclaimProofRequest.init(
         process.env.NEXT_PUBLIC_RECLAIM_APP_ID!,
         process.env.NEXT_PUBLIC_RECLAIM_APP_SECRET!,
@@ -38,8 +38,8 @@ export default function Home() {
         {
           log: true,
         }
-      )
-      setReclaimProofRequest(proofRequest)
+      );
+      setReclaimProofRequest(proofRequest);
 
       // // // Add context to the proof request (optional)
       // proofRequest.setContext("0x48796C654F7574707574", "test")
@@ -59,50 +59,50 @@ export default function Home() {
       // Uncomment the following line to log the proof request and to get the Json String
       // console.log('Proof request initialized:', proofRequest.toJsonString())
     } catch (error) {
-      console.error('Error initializing ReclaimProofRequest:', error)
-      setError('Failed to initialize Reclaim. Please try again.')
+      console.error("Error initializing ReclaimProofRequest:", error);
+      setError("Failed to initialize Reclaim. Please try again.");
     }
   }
 
   async function startClaimProcess() {
     if (!reclaimProofRequest) {
-      setError('Reclaim not initialized. Please refresh the page.')
-      return
+      setError("Reclaim not initialized. Please refresh the page.");
+      return;
     }
 
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     try {
       // Start the verification session
-      await reclaimProofRequest.triggerReclaimFlow()
+      await reclaimProofRequest.triggerReclaimFlow();
 
       await reclaimProofRequest.startSession({
         onSuccess: async (proof: Proof | Proof[] | string | undefined) => {
-          setIsLoading(false)
+          setIsLoading(false);
 
-          if (proof && typeof proof === 'string') {
-            console.log('SDK Message:', proof)
-            setError('Received string response instead of proof object.')
-          } else if (proof && typeof proof !== 'string') {
-            console.log('Proof received:', proof)
+          if (proof && typeof proof === "string") {
+            console.log("SDK Message:", proof);
+            setError("Received string response instead of proof object.");
+          } else if (proof && typeof proof !== "string") {
+            console.log("Proof received:", proof);
             if (Array.isArray(proof)) {
-              setProofData(proof)
+              setProofData(proof);
             } else {
-              setProofData([proof])
+              setProofData([proof]);
             }
           }
         },
         onError: (error: Error) => {
-          console.error('Error in proof generation:', error)
-          setIsLoading(false)
-          setError(`Error: ${error.message}`)
-        }
-      })
+          console.error("Error in proof generation:", error);
+          setIsLoading(false);
+          setError(`Error: ${error.message}`);
+        },
+      });
     } catch (error) {
-      console.error('Error starting verification session:', error)
-      setIsLoading(false)
-      setError('Failed to start verification. Please try again.')
+      console.error("Error starting verification session:", error);
+      setIsLoading(false);
+      setError("Failed to start verification. Please try again.");
     }
   }
 
@@ -114,17 +114,19 @@ export default function Home() {
     } catch (e) {
       return proof.claimData.provider || "Unknown Provider";
     }
-  }
+  };
 
   // Function to beautify and display extracted parameters
   const renderExtractedParameters = (proof: Proof) => {
     try {
-      const context = JSON.parse(proof.claimData.context)
-      const extractedParams = context.extractedParameters || {}
+      const context = JSON.parse(proof.claimData.context);
+      const extractedParams = context.extractedParameters || {};
 
       return (
         <>
-          <p className="text-sm font-medium text-gray-500 mb-2">Extracted Parameters</p>
+          <p className="text-sm font-medium text-gray-500 mb-2">
+            Extracted Parameters
+          </p>
           {Object.entries(extractedParams).length > 0 ? (
             <div className="space-y-2">
               {Object.entries(extractedParams).map(([key, value]) => (
@@ -137,19 +139,25 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 bg-gray-50 p-2 rounded">No parameters extracted</p>
+            <p className="text-gray-500 bg-gray-50 p-2 rounded">
+              No parameters extracted
+            </p>
           )}
         </>
-      )
+      );
     } catch (e) {
-      return <p className="text-red-500 bg-gray-50 p-2 rounded">Failed to parse parameters</p>
+      return (
+        <p className="text-red-500 bg-gray-50 p-2 rounded">
+          Failed to parse parameters
+        </p>
+      );
     }
-  }
+  };
 
   return (
-    <main className='flex min-h-screen flex-col items-center p-8 bg-gray-50'>
-      <div className='max-w-4xl w-full mx-auto'>
-        <h1 className='text-3xl font-bold mb-8 text-center'>Reclaim SDK</h1>
+    <main className="flex min-h-screen flex-col items-center p-8 bg-gray-50">
+      <div className="max-w-4xl w-full mx-auto">
+        <h1 className="text-3xl font-bold mb-8 text-center">Reclaim SDK</h1>
 
         {!proofData && !isLoading && (
           <div className="text-center">
@@ -158,7 +166,7 @@ export default function Home() {
             </p>
             <button
               onClick={startClaimProcess}
-              className='bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors shadow-md'
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors shadow-md"
               disabled={!reclaimProofRequest}
             >
               Start Claim Process
@@ -181,23 +189,40 @@ export default function Home() {
 
         {proofData && proofData.length > 0 && (
           <div className="mt-8">
-            <h2 className="text-2xl font-semibold mb-6 text-center">Verification Successful</h2>
+            <h2 className="text-2xl font-semibold mb-6 text-center">
+              Verification Successful
+            </h2>
 
             {proofData.map((proof, index) => (
-              <div key={index} className="mb-8 bg-white p-8 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+              <div
+                key={index}
+                className="mb-8 bg-white p-8 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+              >
                 <div className="flex justify-between items-start mb-4">
                   <h3 className="text-xl font-medium">Proof #{index + 1}</h3>
-                  <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Verified</span>
+                  <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    Verified
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 mb-4">
                   <div>
-                    <p className="text-sm font-medium text-gray-500">Provider</p>
-                    <p className="font-medium break-all">{getProviderUrl(proof)}</p>
+                    <p className="text-sm font-medium text-gray-500">
+                      Provider
+                    </p>
+                    <p className="font-medium break-all">
+                      {getProviderUrl(proof)}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-500">Timestamp</p>
-                    <p>{new Date(proof.claimData.timestampS * 1000).toLocaleString()}</p>
+                    <p className="text-sm font-medium text-gray-500">
+                      Timestamp
+                    </p>
+                    <p>
+                      {new Date(
+                        proof.claimData.timestampS * 1000
+                      ).toLocaleString()}
+                    </p>
                   </div>
                 </div>
 
@@ -209,11 +234,15 @@ export default function Home() {
                 {/* Witnesses section */}
                 {proof.witnesses && proof.witnesses.length > 0 && (
                   <div className="mt-5 pt-4 border-t border-gray-100">
-                    <p className="text-sm font-medium text-gray-500 mb-2">Attested by</p>
+                    <p className="text-sm font-medium text-gray-500 mb-2">
+                      Attested by
+                    </p>
                     <div className="space-y-2">
                       {proof.witnesses.map((witness, widx) => (
                         <div key={widx} className="bg-gray-50 p-2 rounded">
-                          <p className="text-sm font-mono break-all">{witness.id}</p>
+                          <p className="text-sm font-mono break-all">
+                            {witness.id}
+                          </p>
                         </div>
                       ))}
                     </div>
@@ -223,11 +252,15 @@ export default function Home() {
                 {/* Signatures section */}
                 {proof.signatures && proof.signatures.length > 0 && (
                   <div className="mt-5 pt-4 border-t border-gray-100">
-                    <p className="text-sm font-medium text-gray-500 mb-2">Signatures</p>
+                    <p className="text-sm font-medium text-gray-500 mb-2">
+                      Signatures
+                    </p>
                     <div className="space-y-2">
                       {proof.signatures.map((signature, sidx) => (
                         <div key={sidx} className="bg-gray-50 p-2 rounded">
-                          <p className="text-sm font-mono break-all">{signature}</p>
+                          <p className="text-sm font-mono break-all">
+                            {signature}
+                          </p>
                         </div>
                       ))}
                     </div>
@@ -236,7 +269,9 @@ export default function Home() {
 
                 {/* Identifier (full) */}
                 <div className="mt-5 pt-4 border-t border-gray-100">
-                  <p className="text-sm font-medium text-gray-500 mb-2">Proof Identifier</p>
+                  <p className="text-sm font-medium text-gray-500 mb-2">
+                    Proof Identifier
+                  </p>
                   <p className="text-sm text-gray-600 font-mono break-all bg-gray-50 p-2 rounded">
                     {proof.identifier}
                   </p>
@@ -261,5 +296,5 @@ export default function Home() {
         </div> */}
       </div>
     </main>
-  )
+  );
 }
