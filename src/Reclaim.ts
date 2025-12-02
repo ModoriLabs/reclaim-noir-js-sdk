@@ -43,12 +43,20 @@ const logger = loggerModule.logger
 
 const sdkVersion = require('../package.json').version;
 
+/**
+ * Options for proof verification
+ */
+export interface VerifyProofOptions {
+    /** Custom witness addresses to use for verification instead of fetching from on-chain */
+    witnessAddresses?: string[];
+}
+
 // Implementation
-export async function verifyProof(proofOrProofs: Proof | Proof[], allowAiWitness?: boolean): Promise<boolean> {
+export async function verifyProof(proofOrProofs: Proof | Proof[]): Promise<boolean> {
     // If input is an array of proofs
     if (Array.isArray(proofOrProofs)) {
         for (const proof of proofOrProofs) {
-            const isVerified = await verifyProof(proof, allowAiWitness);
+            const isVerified = await verifyProof(proof);
             if (!isVerified) {
                 return false;
             }
@@ -63,9 +71,9 @@ export async function verifyProof(proofOrProofs: Proof | Proof[], allowAiWitness
     }
 
     try {
-        // check if witness array exist and first element is ai-witness
+        // check if witness array exist and first element is manual-verify
         let witnesses = []
-        if (proof.witnesses.length && proof.witnesses[0]?.url === 'ai-witness' && allowAiWitness === true) {
+        if (proof.witnesses.length && proof.witnesses[0]?.url === 'manual-verify') {
             witnesses.push(proof.witnesses[0].id)
         } else {
             witnesses = await getWitnessesForClaim(
@@ -175,7 +183,7 @@ export class ReclaimProofRequest {
         this.timeStamp = Date.now().toString();
         this.applicationId = applicationId;
         this.sessionId = "";
-        // keep template data as empty object  
+        // keep template data as empty object
         this.templateData = emptyTemplateData;
         this.parameters = {};
 
@@ -802,7 +810,7 @@ export class ReclaimProofRequest {
                                 throw new ProofNotVerifiedError();
                             }
                         }
-                        // check if the proofs array has only one proof then send the proofs in onSuccess 
+                        // check if the proofs array has only one proof then send the proofs in onSuccess
                         if (proofs.length === 1) {
 
                             onSuccess(proofs[0]);
